@@ -74,7 +74,7 @@ public class DefaultFuture implements ResponseFuture {
         this.request = request;
         this.id = request.getId();
         this.timeout = timeout > 0 ? timeout : channel.getUrl().getPositiveParameter(Constants.TIMEOUT_KEY, Constants.DEFAULT_TIMEOUT);
-        // put into waiting map.
+        //放入到等待映射标中
         FUTURES.put(id, this);
         CHANNELS.put(id, channel);
     }
@@ -144,6 +144,7 @@ public class DefaultFuture implements ResponseFuture {
 
     public static void received(Channel channel, Response response) {
         try {
+            //获取ID对应的defaultFuture
             DefaultFuture future = FUTURES.remove(response.getId());
             if (future != null) {
                 future.doReceived(response);
@@ -325,16 +326,24 @@ public class DefaultFuture implements ResponseFuture {
         sent = System.currentTimeMillis();
     }
 
+    /**
+     * 接收到响应
+     * @param res
+     */
     private void doReceived(Response res) {
+        //获取锁
         lock.lock();
         try {
+            //设置响应
             response = res;
             if (done != null) {
+                //通知等待线程，因为一个future上只有一个线程在等待
                 done.signal();
             }
         } finally {
             lock.unlock();
         }
+        //如果回调接口不为空则执行回调
         if (callback != null) {
             invokeCallback(callback);
         }

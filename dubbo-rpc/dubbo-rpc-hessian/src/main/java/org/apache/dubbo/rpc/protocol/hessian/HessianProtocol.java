@@ -95,13 +95,14 @@ public class HessianProtocol extends AbstractProxyProtocol {
     @Override
     @SuppressWarnings("unchecked")
     protected <T> T doRefer(Class<T> serviceType, URL url) throws RpcException {
+        //判断是否是泛化调用
         String generic = url.getParameter(Constants.GENERIC_KEY);
         boolean isGeneric = ProtocolUtils.isGeneric(generic) || serviceType.equals(GenericService.class);
         if (isGeneric) {
             RpcContext.getContext().setAttachment(Constants.GENERIC_KEY, generic);
             url = url.setPath(url.getPath() + "/" + Constants.GENERIC_KEY);
         }
-
+        //创建HessionProxyFactory
         HessianProxyFactory hessianProxyFactory = new HessianProxyFactory();
         boolean isHessian2Request = url.getParameter(Constants.HESSIAN2_REQUEST_KEY, Constants.DEFAULT_HESSIAN2_REQUEST);
         hessianProxyFactory.setHessian2Request(isHessian2Request);

@@ -93,6 +93,7 @@ public abstract class AbstractProxyProtocol extends AbstractProtocol {
 
     @Override
     public <T> Invoker<T> refer(final Class<T> type, final URL url) throws RpcException {
+        //通过代理工厂创建Invoker
         final Invoker<T> target = proxyFactory.getInvoker(doRefer(type, url), type, url);
         Invoker<T> invoker = new AbstractInvoker<T>(type, url) {
             @Override

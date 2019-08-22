@@ -235,9 +235,11 @@ public abstract class AbstractClusterInvoker<T> implements Invoker<T> {
         if (contextAttachments != null && contextAttachments.size() != 0) {
             ((RpcInvocation) invocation).addAttachments(contextAttachments);
         }
-
+        //获取服务列表
         List<Invoker<T>> invokers = list(invocation);
+        //加载负载均衡器
         LoadBalance loadbalance = initLoadBalance(invokers, invocation);
+        //添加requestId
         RpcUtils.attachInvocationIdIfAsync(getUrl(), invocation);
         return doInvoke(invocation, invokers, loadbalance);
     }

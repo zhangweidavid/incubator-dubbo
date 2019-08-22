@@ -54,9 +54,9 @@ public class ConsistentHashLoadBalance extends AbstractLoadBalance {
     }
 
     private static final class ConsistentHashSelector<T> {
-
+        //虚拟节点
         private final TreeMap<Long, Invoker<T>> virtualInvokers;
-
+        //
         private final int replicaNumber;
 
         private final int identityHashCode;
@@ -64,6 +64,7 @@ public class ConsistentHashLoadBalance extends AbstractLoadBalance {
         private final int[] argumentIndex;
 
         ConsistentHashSelector(List<Invoker<T>> invokers, String methodName, int identityHashCode) {
+            //创建treeMap
             this.virtualInvokers = new TreeMap<Long, Invoker<T>>();
             this.identityHashCode = identityHashCode;
             URL url = invokers.get(0).getUrl();
@@ -73,6 +74,7 @@ public class ConsistentHashLoadBalance extends AbstractLoadBalance {
             for (int i = 0; i < index.length; i++) {
                 argumentIndex[i] = Integer.parseInt(index[i]);
             }
+            //针对每个引用创建虚拟节点，默认创建160个；
             for (Invoker<T> invoker : invokers) {
                 String address = invoker.getUrl().getAddress();
                 for (int i = 0; i < replicaNumber / 4; i++) {
@@ -86,8 +88,11 @@ public class ConsistentHashLoadBalance extends AbstractLoadBalance {
         }
 
         public Invoker<T> select(Invocation invocation) {
+            //构建Key
             String key = toKey(invocation.getArguments());
+            //获取md5值
             byte[] digest = md5(key);
+            //对md5值计算Hash
             return selectForKey(hash(digest, 0));
         }
 
@@ -102,7 +107,9 @@ public class ConsistentHashLoadBalance extends AbstractLoadBalance {
         }
 
         private Invoker<T> selectForKey(long hash) {
+            //选择比当前hash值大的最小值
             Map.Entry<Long, Invoker<T>> entry = virtualInvokers.ceilingEntry(hash);
+            //如果不存在则使用第一个
             if (entry == null) {
                 entry = virtualInvokers.firstEntry();
             }

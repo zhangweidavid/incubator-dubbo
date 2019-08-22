@@ -260,6 +260,7 @@ public class ReferenceConfig<T> extends AbstractReferenceConfig {
 
         map.put(Constants.SIDE_KEY, Constants.CONSUMER_SIDE);
         appendRuntimeParameters(map);
+        //如果不是泛化调用
         if (!isGeneric()) {
             String revision = Version.getVersion(interfaceClass, version);
             if (revision != null && revision.length() > 0) {
@@ -300,7 +301,7 @@ public class ReferenceConfig<T> extends AbstractReferenceConfig {
             hostToRegistry = NetUtils.getLocalHost();
         }
         map.put(Constants.REGISTER_IP_KEY, hostToRegistry);
-
+        //创建引用代理
         ref = createProxy(map);
 
         ApplicationModel.initConsumerModel(getUniqueServiceName(), buildConsumerModel(attributes));
